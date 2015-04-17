@@ -1,0 +1,28 @@
+/*------------------------------------------------------
+  MIXINS
+-------------------------------------------------------*/
+.clear-fix {
+  display: block;
+  zoom: 1;
+}
+.clear-fix:after {
+  content: " ";
+  display: block;
+  font-size: 0;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+/*------------------------------------------------------
+  ACTUAL CSS RULES SORTA
+-------------------------------------------------------*/
+html {
+  min-height: 100%;
+  background-color: #181818;
+  text-align: center;
+}
+body {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 105%;
+  min-height: 100%;
+}

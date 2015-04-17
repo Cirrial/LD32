@@ -1,0 +1,112 @@
+/*------------------------------------------------------
+  MIXINS
+-------------------------------------------------------*/
+@background-color: #181818;
+
+// I love less for this alone
+.border-radius(@radius) {
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  border-radius: @radius;
+}
+
+.box-shadow(@x: 0; @y: 0; @blur: 1px; @spread: 1px; @color: #000;) {
+  -webkit-box-shadow: @arguments;
+  -moz-box-shadow: @arguments;
+  box-shadow: @arguments;
+}
+
+.clear-box-shadow() {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+
+.box-shadow-inset(@x: 0; @y: 0; @blur: 1px; @spread: 1px; @color: #000;) {
+  -webkit-box-shadow: @arguments inset;
+  -moz-box-shadow: @arguments inset;
+  box-shadow: @arguments inset;
+}
+
+.translate(@x, @y) {
+  -webkit-transform: translateX(@x) translateY(@y);
+  -moz-transform: translateX(@x) translateY(@y);
+  -ms-transform: translateX(@x) translateY(@y);
+  -o-transform: translateX(@x) translateY(@y);
+  transform: translateX(@x) translateY(@y)
+}
+
+.opacity (@opacity: 0.5) {
+  -webkit-opacity: @opacity;
+  -moz-opacity: @opacity;
+  opacity: @opacity;
+}
+
+.transition(...) {
+  -webkit-transition: @arguments;
+  -moz-transition: @arguments;
+  -o-transition: @arguments;;
+  -ms-transition: @arguments;
+  transition: @arguments;
+}
+
+.no-select() {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.multi-column-list(@count: 2, @separation: 5px) {
+  -moz-column-count: @count;
+  -moz-column-gap: @separation;
+  -webkit-column-count: @count;
+  -webkit-column-gap: @separation;
+  column-count: @count;
+  column-gap: @separation;
+}
+
+.pipe-separators() {
+  list-style-type: none;
+  display: inline;
+
+  &:before {
+    content: " | ";
+  }
+
+  &:first-child:before {
+    content: none;
+  }
+}
+
+.clear-fix {
+  display: block;
+  zoom: 1;
+
+  &:after {
+    content: " ";
+    display: block;
+    font-size: 0;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+  }
+}
+
+/*------------------------------------------------------
+  ACTUAL CSS RULES SORTA
+-------------------------------------------------------*/
+
+html {
+  min-height: 100%;
+  background-color: @background-color;
+  text-align: center;
+}
+
+body {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 105%;
+  min-height: 100%;
+}
