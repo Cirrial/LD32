@@ -1,0 +1,13 @@
+# Intellij
+.idea/
+*.iml
+*.iws
+
+# Mac
+.DS_Store
+
+*.psd
+*.exe
+
+js/ref/
+old/
