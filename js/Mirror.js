@@ -28,8 +28,9 @@ LD32.Mirror.prototype.update = function() {
     }
 };
 
-LD32.Mirror.prototype.lightHit = function(lightRay, contactPoint, direction, originSource) {
+LD32.Mirror.prototype.lightHit = function(lightRay, contactPoint, direction, originSource, reflections) {
     if(this == originSource) return;
+    if(reflections == LD32.Constants.MAX_REFLECTIONS) return; // don't want a stack overflow
     this.shoneOn = true;
     if(this.ray == null) {
         this.ray = this.game.state.getCurrentState().createLightRay(contactPoint.x, contactPoint.y);
@@ -38,8 +39,6 @@ LD32.Mirror.prototype.lightHit = function(lightRay, contactPoint, direction, ori
 
     var reflectBaseLine = new Phaser.Line(this.x, this.y, this.x + Math.cos(this.rotation), this.y + Math.sin(this.rotation));
     var directionLine = new Phaser.Line(contactPoint.x - direction.x, contactPoint.y - direction.y, contactPoint.x, contactPoint.y);
-    var reflectAngle = Phaser.Line.reflect(reflectBaseLine, directionLine);
-    var reflectLine = new Phaser.Line().fromAngle(contactPoint.x, contactPoint.y, reflectAngle, 10);
-
-    this.ray.cast(this, contactPoint, new Phaser.Point(reflectLine.x, reflectLine.y));
+    var reflectAngle = Phaser.Line.reflect(directionLine, reflectBaseLine);
+    this.ray.cast(this, contactPoint, new Phaser.Point(Math.cos(reflectAngle), Math.sin(reflectAngle)), reflections + 1);
 };

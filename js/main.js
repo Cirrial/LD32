@@ -1,15 +1,5 @@
 var LD32 = LD32 || {};
 
-// SET UP CONSTANTS
-LD32.EXPECTED_TIMESTEP = 1 / 60;
-LD32.SCREEN_WIDTH = 1152;
-LD32.SCREEN_HEIGHT = 648;
-LD32.GAME_WIDTH = 1152;
-LD32.GAME_HEIGHT = 648;
-
-LD32.musicIndex = 0;
-
-
 LD32.game = new Phaser.Game(LD32.SCREEN_WIDTH, LD32.SCREEN_HEIGHT, Phaser.AUTO, '');
 
 // SET UP STATES
@@ -52,21 +42,24 @@ LD32.game.state.start('Boot');
 // - check totals of all buildings
 // - pick research item
 // - get goals
+// - save?
 
 
 // FEATURES
-// - world (simple, flat plane, probably)
-// - time passage (one night is five minutes? formula of enemy points that are the wave that show up at the beginning of the night)
-// - player character (platformer movement style)
-// - light physics
-//      - rays need to emit, reflect and collide (handle as segments?)
-//      - ray segments need to check for collision with player and/or enemy (ignore flashlight from player though)
-// - flashlight weapon (20 damage per second while it's in contact) (15 second battery)
-// - inventory slots (dark matter) (umbra pod)
-// - enemies
+// DONE - world (simple, flat plane, probably)
+// DONE - time passage (one night is five minutes? formula of enemy points that are the wave that show up at the beginning of the night)
+// DONE - player character (platformer movement style)
+// DONE - light physics
+// DONE     - rays need to emit, reflect and collide (handle as segments?)
+// DONE     - ray segments need to check for collision with player and/or enemy (ignore flashlight from player though)
+// DONE - flashlight weapon (20 damage per second while it's in contact) (15 second battery)
+// ONE - enemies
+// - building slots + build ui
 // - buildings
+// - end game final wave + credits screen
 // - resources
-// - research
+// - inventory slots (dark matter) (umbra pod)
+// - research + research ui
 // - home stuff?
 
 // UI
@@ -98,9 +91,11 @@ LD32.game.state.start('Boot');
 // - air swarm enemy - fast, aerial, very weak attack but many of them at a time, targets player as priority
     // health: 20, speed: 7xplayer, attack range: 40, attack damage: 1 per projectile, 0.2 cooldown, x4 enemies - value: 60
     // improved: 2x speed, 2x amount - value: 300
+    // dart projectile
 // - parabolic arc projectile enemy - middling speed, probably just slower than the player, fires projectiles in an arc (45 degrees)
     // health: 75, speed: 0.9xplayer, attack range: 200, attack damage: 4 per hit, each hit has 3 second cooldown - value: 50
     // improved: 2x range, 2x health, 2x attack damage - value: 150
+    // arc projectile
 
 // BUILDINGS
 // buildings take up slots
@@ -110,21 +105,24 @@ LD32.game.state.start('Boot');
 
 // - dark matter reactor (charge flashlight, changes dark matter into power) - free, can't build, but for upgrade purposes, 500 dark matter
     // - improved: provides 3 power instead of 1
-// - umbra garden (grows umbra pods from dark matter, which can be eaten for health) - 50 dark matter
-    // - improved: grow in 1 day instead of 2
 
-// - lens (amplifies any light that comes towards it into a stronger beam)  - x2 strength - 200 dark matter
-    // - improved: stronger beam - x5 strength
-// - mirror (redirects light in a direction) - 20 dark matter
-    // - improved: splits light, light reflects as before but also lets original light direction continue
 // - beam source (converts power into light) - light does 100 damage per second - SPECIAL
     // can't improve
+// - mirror (redirects light in a direction) - 20 dark matter
+    // - improved: splits light, light reflects as before but also lets original light direction continue
+// - lens (amplifies any light that comes towards it into a stronger beam)  - x2 strength - 200 dark matter
+    // - improved: stronger beam - x5 strength
 
+
+
+// - distress signal (starts final wave) - 2500 dark matter
+
+// - umbra garden (grows umbra pods from dark matter, which can be eaten for health) - 50 dark matter
+    // - improved: grow in 1 day instead of 2
 // - collector (drags all collectibles in 200 radius into itself, feeds dark matter into reactors if they fall below 50 dark matter) - 150 dark matter
     // - improved: x4 radius, closer collector to a collectible wins
 // - dark matter generator (creates dark matter) - 1 dark matter per second - 500 dark matter
     // - improved: 5 dark matter per second
-// - distress signal (starts final wave) - 2500 dark matter
 
 // - home (enter during downtime for research and eat and sleep (full heal)) - free, can't build
 

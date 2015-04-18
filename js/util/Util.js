@@ -5,6 +5,10 @@ var GameUtil = {
     proximitySoundPool: {},
     musicPool: {},
 
+    pickRandom: function(array) {
+        return array[Math.floor(Math.random() * array.length)];
+    },
+
     // to be used to recycle entities _only_
     // can take phaser groups or arrays
     recycle: function(group, type) {

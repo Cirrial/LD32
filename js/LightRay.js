@@ -22,8 +22,7 @@ LD32.LightRay = function(game, x, y, sceneryGroup, receiverGroup, enemyGroup, pl
 
     this.damage = LD32.Constants.BEAM_DAMAGE;
 
-    this.exists = true;
-    //this.kill();
+    this.exists = false;
 };
 
 LD32.LightRay.prototype = Object.create(Phaser.TileSprite.prototype);
@@ -35,8 +34,12 @@ LD32.LightRay.prototype.update = function() {
     }
 };
 
-LD32.LightRay.prototype.cast = function(source, startPoint, direction) {
+LD32.LightRay.prototype.cast = function(source, startPoint, direction, reflections) {
     if(!this.exists) return; // do not cast if dead
+
+    if(typeof reflections === 'undefined') {
+        reflections = 0;
+    }
 
     var i, r;
     var hitPoint;
@@ -47,7 +50,10 @@ LD32.LightRay.prototype.cast = function(source, startPoint, direction) {
 
     // raycast from given start point and direction  until we hit (descending priority):
 
-    // a receiver area (circular)
+    // a receiver (line segment)
+    var closestDistance = Number.MAX_VALUE;
+    var chosenHit = null;
+    var chosenReceiver = null;
     for(i = 0; i < this.receiverGroup.children.length; i++) {
         var receiver = this.receiverGroup.children[i];
         if(receiver.alive && receiver != source) {
@@ -56,13 +62,24 @@ LD32.LightRay.prototype.cast = function(source, startPoint, direction) {
             r = receiver.width;
             hitPoint = Phaser.Line.intersects(rLine, rayLine)//GameUtil.getClosestPointToLineSegment(receiver, rayLine);
             if(hitPoint) {
-                // CONTACT
-                endPoint = hitPoint;
-                hasHit = true;
-                receiver.lightHit(this, endPoint, direction, source);
+                var distance = Phaser.Point.distance(startPoint, hitPoint);
+                if(distance < closestDistance) {
+                    closestDistance = distance;
+                    chosenHit = hitPoint;
+                    chosenReceiver = receiver;
+                }
             }
         }
     }
+
+    // once we get our closest option
+    if(chosenHit) {
+        // CONTACT
+        endPoint = chosenHit;
+        hasHit = true;
+        chosenReceiver.lightHit(this, endPoint, direction, source, reflections);
+    }
+
     // world scenery
     if(!hasHit) {
         for(i = 0; i < this.sceneryGroup.children.length; i++) {
@@ -93,9 +110,11 @@ LD32.LightRay.prototype.cast = function(source, startPoint, direction) {
 
     rayLine.setTo(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
     this.contactLine = rayLine;
+    this.originSource = source;
 };
 
 LD32.LightRay.prototype.applyDamage = function() {
+    if(!this.exists) return;
     // check if this segment overlaps any enemies or the player, and do damage as appropriate
     var i;
 
@@ -117,5 +136,5 @@ LD32.LightRay.prototype.applyDamage = function() {
 LD32.LightRay.prototype.checkSpriteOverlap = function(sprite, rayLine) {
     var r = Math.min(sprite.width, sprite.height) + this.width;
     var closestPoint = GameUtil.getClosestPointToLineSegment(sprite, rayLine);
-    return Phaser.Point.distance(sprite, closestPoint) <= r;
+    return Phaser.Point.distance(sprite, closestPoint) <= r && this.originSource != sprite;
 };

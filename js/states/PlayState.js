@@ -15,8 +15,8 @@ LD32.PlayState.prototype = {
     segmentGroup: null,
 
     player: null,
-    testRay: null,
 
+    gameClock: null,
 
     create: function() {
         this.game.stage.backgroundColor = '#000000';
@@ -32,32 +32,32 @@ LD32.PlayState.prototype = {
         this.effectsGroup = this.game.add.group();
         this.segmentGroup = this.game.add.group();
 
+        this.gameClock = new LD32.GameClock(this.game);
+
         this.player = new LD32.Player(this.game, this.game.width * 0.5, this.game.height * 0.5 - 200);
         this.game.add.existing(this.player);
         this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_PLATFORMER);
         this.playerGroup.add(this.player);
 
-        this.testRay = this.createLightRay(this.game.width * 0.5, this.game.height * 0.5 + 100);
-
         var groundBmp = GameUtil.createPlaceholderBitmap(this.game, LD32.GAME_WIDTH, 100, "#202020");
-        var ground = this.game.make.sprite(0, LD32.GAME_HEIGHT - 100, groundBmp);
+        var ground = this.game.make.sprite(0, LD32.Constants.GROUND_Y, groundBmp);
+        this.game.physics.enable(ground, Phaser.Physics.ARCADE);
+        ground.body.moves = false;
+        ground.body.immovable = true;
         this.sceneryGroup.add(ground);
 
-        var mirror = new LD32.Mirror(this.game, 800, LD32.GAME_HEIGHT - 200);
-        mirror.angle = -45;
-        this.receiverGroup.add(mirror);
-        mirror = new LD32.Mirror(this.game, 500, LD32.GAME_HEIGHT - 200);
-        mirror.angle = 20;
-        this.receiverGroup.add(mirror);
+        for(var i=0; i<4; i++) {
+            var mirror = new LD32.Mirror(this.game, Math.random() * LD32.GAME_WIDTH, LD32.Constants.GROUND_Y - 200);
+            mirror.angle = Math.random() * 360;
+            this.receiverGroup.add(mirror);
+        }
     },
 
     update: function() {
-        var cx = this.game.width * 0.5;
-        var cy = this.game.height * 0.5;
-        var pointer = this.game.input.activePointer;
-        var dx = pointer.x - cx;
-        var dy = pointer.y - cy;
-        this.testRay.cast(null, {x: cx, y: cy}, {x: dx, y: dy});
+        this.game.physics.arcade.collide(this.playerGroup, this.sceneryGroup);
+        this.game.physics.arcade.collide(this.enemyGroup, this.sceneryGroup);
+
+        this.gameClock.tick(this.game.time.physicsElapsed);
     },
 
     render: function() {
