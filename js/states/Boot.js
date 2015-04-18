@@ -31,7 +31,7 @@ LD32.Boot.prototype = {
 
         //physics system for movement
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
-        this.physics.arcade.gravity.y = 0;
+        this.physics.arcade.gravity.y = 0;//LD32.Constants.GRAVITY;
 
         // plugins
         this.game.plugins.fadePlugin = this.game.plugins.add(Phaser.Plugin.Fade);

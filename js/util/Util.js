@@ -13,7 +13,7 @@ var GameUtil = {
             collection = group.children;
         }
         var item = null;
-        for(var i=0; i<collection.length; i++) {
+        for(var i = 0; i < collection.length; i++) {
             var test = collection[i];
             if(test instanceof type && type.alive) {
                 item = test;
@@ -21,7 +21,7 @@ var GameUtil = {
             }
         }
         if(item == null && type != null) {
-            item = new type(Flourish.game, 0, 0);
+            item = new type(LD32.game, 0, 0);
             if(group instanceof Phaser.Group) {
                 group.add(item);
             } else {
@@ -33,7 +33,7 @@ var GameUtil = {
 
     countLivingInArray: function(arr) {
         var alive = 0;
-        for(var i=0; i<arr.length; i++) {
+        for(var i = 0; i < arr.length; i++) {
             var entity = arr[i];
             if(entity.alive) {
                 alive++;
@@ -51,14 +51,14 @@ var GameUtil = {
         }
         var bestSqDist = maxDist * maxDist;
         var bestMatch = null;
-        for(var i=0; i <group.children.length; i++) {
+        for(var i = 0; i < group.children.length; i++) {
             var obj = group.children[i];
-            if (!obj.alive || obj === origin) continue;
+            if(!obj.alive || obj === origin) continue;
             if(excluded.indexOf(obj) != -1) continue;
             var dx = obj.x - origin.x;
             var dy = obj.y - origin.y;
             var sqDist = dx * dx + dy * dy;
-            if (sqDist < bestSqDist) {
+            if(sqDist < bestSqDist) {
                 bestSqDist = sqDist;
                 bestMatch = obj;
             }
@@ -71,13 +71,13 @@ var GameUtil = {
             radius = 1000;
         }
         var entities = [];
-        for(var i=0; i <group.children.length; i++) {
+        for(var i = 0; i < group.children.length; i++) {
             var obj = group.children[i];
-            if (!obj.alive || obj === origin) continue;
+            if(!obj.alive || obj === origin) continue;
             var dx = obj.x - origin.x;
             var dy = obj.y - origin.y;
             var sqDist = dx * dx + dy * dy;
-            if (sqDist < (radius * radius)) {
+            if(sqDist < (radius * radius)) {
                 entities.push(obj);
             }
         }
@@ -89,9 +89,9 @@ var GameUtil = {
             point = new Phaser.Point();
         }
         var num = 0;
-        for(var i=0; i <arr.length; i++) {
+        for(var i = 0; i < arr.length; i++) {
             var obj = arr[i];
-            if (!obj.alive) continue;
+            if(!obj.alive) continue;
             num++;
             point.x += obj.x;
             point.y += obj.y;
@@ -105,16 +105,16 @@ var GameUtil = {
         if(volume == null || volume == undefined) {
             volume = 0.4;
         }
-        var sound = Flourish.Util.proximitySoundPool[key];
+        var sound = GameUtil.proximitySoundPool[key];
         if(!sound) {
-            sound = Flourish.game.add.sound(key, volume, loop);
+            sound = LD32.game.add.sound(key, volume, loop);
             sound.allowMultiple = false;
-            Flourish.Util.proximitySoundPool[key] = sound;
+            GameUtil.proximitySoundPool[key] = sound;
         }
 
         // proximity volume adjustment
-        var cameraTarget = Flourish.game.camera.target;
-        var radialMultiplier = Phaser.Math.distance(cameraTarget.x, cameraTarget.y, source.x, source.y) / Flourish.Util.SOUND_FALLOFF_RADIUS_MAX;
+        var cameraTarget = LD32.game.camera.target;
+        var radialMultiplier = Phaser.Math.distance(cameraTarget.x, cameraTarget.y, source.x, source.y) / GameUtil.SOUND_FALLOFF_RADIUS_MAX;
         radialMultiplier = 1 - Phaser.Math.clamp(radialMultiplier, 0, 1);
         volume = volume * radialMultiplier;
 
@@ -125,28 +125,131 @@ var GameUtil = {
     },
 
     playShuffledMusic: function(list) {
-        if(Flourish.musicIndex < 0 || Flourish.musicIndex >= list.length) {
-            var lastPlayedKey = Flourish.musicIndex < 0 ? "" : list[list.length - 1];
-            Flourish.musicIndex = 0;
+        if(LD32.musicIndex < 0 || LD32.musicIndex >= list.length) {
+            var lastPlayedKey = LD32.musicIndex < 0 ? "" : list[list.length - 1];
+            LD32.musicIndex = 0;
             do {
                 list = Phaser.ArrayUtils.shuffle(list);
             } while(list[0] === lastPlayedKey); // avoid playing the last song repeatedly
         }
-        var key = list[Flourish.musicIndex];
-        var music = Flourish.Util.musicPool[key];
+        var key = list[LD32.musicIndex];
+        var music = GameUtil.musicPool[key];
         if(!music) {
-            music = Flourish.game.add.sound(key, 0.5, false);
-            Flourish.Util.musicPool[key] = music;
+            music = LD32.game.add.sound(key, 0.5, false);
+            GameUtil.musicPool[key] = music;
         }
-        Flourish.musicIndex++;
+        LD32.musicIndex++;
         music.play();
         return music;
     },
 
     stripListenersFromMusicPool: function() {
-        for(var i=0; i<Flourish.Util.musicPool.length; i++) {
-            var music = Flourish.Util.musicPool[i];
+        for(var i = 0; i < GameUtil.musicPool.length; i++) {
+            var music = GameUtil.musicPool[i];
             music.onStop.removeAll();
         }
+    },
+
+    createPlaceholderBitmap: function(game, width, height, color) {
+        // create a new bitmap data object
+        var bmd = game.make.bitmapData(width, height);
+
+        // draw to the canvas context like normal
+        bmd.ctx.beginPath();
+        bmd.ctx.rect(0, 0, width, height);
+        bmd.ctx.fillStyle = color;
+        bmd.ctx.fill();
+
+        return bmd;
+    },
+
+    // Code adapated from
+    // http://blog.generalrelativity.org/actionscript-30/collision-detection-circleline-segment-circlecapsule/
+    // Accessed 27/02/10
+    // Returns the closest point on a line segment to the test point
+    getClosestPointToLineSegment: function(point, line) {
+        var v = new Phaser.Point(line.end.x, line.end.y);
+        Phaser.Point.subtract(v, line.start, v);
+        var w = new Phaser.Point(point.x, point.y);
+        Phaser.Point.subtract(w, line.start, w);
+        var t = w.dot(v) / v.dot(v);
+        if(t < 0) {
+            t = 0;
+        } else if(t > 1) {
+            t = 1;
+        }
+        return Phaser.Point.add(new Phaser.Point(line.start.x, line.start.y), (v.multiply(t, t)));
+    },
+
+    // adapted http://www.rocketshipgames.com/blogs/tjkopena/2014/07/circle-intersection-test/
+    // accessed 18/04/15
+    getClosestLineIntersectionPointWithCircle: function(line, circle) {
+        var closestEndPoint = null;
+
+        var lx = line.end.x - line.start.x;
+        var ly = line.end.y - line.start.y;
+
+        var len = Math.sqrt(lx * lx + ly * ly);
+
+        var dx = lx / len;
+        var dy = ly / len;
+
+        var t = dx * (circle.x - line.start.x) + dy * (circle.y - line.start.y);
+
+        var ex = t * dx + line.start.x;
+        var ey = t * dy + line.start.y;
+
+        var lec = Math.sqrt((ex - circle.x) * (ex - circle.x) +
+        (ey - circle.y) * (ey - circle.y));
+
+        if(lec < circle.radius) {
+            var dt = Math.sqrt(circle.radius * circle.radius - lec * lec);
+            closestEndPoint = new Phaser.Point();
+            closestEndPoint.x = (t - dt) * dx + line.start.x;
+            closestEndPoint.y = (t - dt) * dy + line.start.y;
+            // INTERSECTION
+        } else if(lec == circle.radius) {
+            closestEndPoint = new Phaser.Point();
+            closestEndPoint.x = ex;
+            closestEndPoint.y = ey;
+            // TANGENT
+        }
+
+        return closestEndPoint;
+    },
+
+    // adapted http://gamemechanicexplorer.com/#raycasting-1
+    // accessed 18/04/15
+    getClosestLineIntersectionPointWithRectangle: function(line, rectangle, insideRectangle) {
+        var distanceToWall = Number.POSITIVE_INFINITY;
+        var closestEndPoint = null;
+
+        var rectLines = [
+            new Phaser.Line(rectangle.x, rectangle.y, rectangle.x + rectangle.width, rectangle.y),
+            new Phaser.Line(rectangle.x, rectangle.y, rectangle.x, rectangle.y + rectangle.height),
+            new Phaser.Line(rectangle.x + rectangle.width, rectangle.y,
+                rectangle.x + rectangle.width, rectangle.y + rectangle.height),
+            new Phaser.Line(rectangle.x, rectangle.y + rectangle.height,
+                rectangle.x + rectangle.width, rectangle.y + rectangle.height)
+        ];
+
+        for(var i=0; i<rectLines.length; i++) {
+            var intersection = Phaser.Line.intersects(line, rectLines[i]);
+            if(intersection) {
+                if(insideRectangle) {
+                    // if the line starts inside the rectangle, there is only one line it will be in contact with
+                    closestEndPoint = intersection;
+                    return closestEndPoint;
+                }
+                var distance = Phaser.Math.distance(line.start.x, line.start.y, intersection.x, intersection.y);
+                if(distance < distanceToWall) {
+                    distanceToWall = distance;
+                    closestEndPoint = intersection;
+                }
+            }
+        }
+
+        return closestEndPoint;
     }
+
 };
